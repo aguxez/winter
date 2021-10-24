@@ -7,6 +7,8 @@ defmodule Winter.Table do
 
   use GenServer, restart: :transient
 
+  @missing_table "missing table"
+
   @spec start_link(Keyword.t()) :: GenServer.on_start()
   def start_link(table_name: table_name) do
     GenServer.start_link(__MODULE__, table_name, name: process_name(table_name))
@@ -15,21 +17,31 @@ defmodule Winter.Table do
   @doc """
   Puts `data` under `key` on `table_name`.
   """
-  @spec put(String.t(), String.t(), any()) :: :ok
+  @spec put(String.t(), String.t(), any()) :: String.t()
   def put(table_name, key, data) do
-    table_name
-    |> process_name()
-    |> GenServer.cast({:put, key, data})
+    case process_exists?(table_name) do
+      {true, pid} ->
+        GenServer.cast(pid, {:put, key, data})
+        "ok"
+
+      _ ->
+        @missing_table
+    end
   end
 
   @doc """
   Deletes `key` on `table_name`.
   """
-  @spec delete(String.t(), String.t()) :: :ok
+  @spec delete(String.t(), String.t()) :: String.t()
   def delete(table_name, key) do
-    table_name
-    |> process_name()
-    |> GenServer.cast({:delete, key})
+    case process_exists?(table_name) do
+      {true, pid} ->
+        GenServer.cast(pid, {:delete, key})
+        "ok"
+
+      _ ->
+        @missing_table
+    end
   end
 
   @doc """
@@ -37,9 +49,10 @@ defmodule Winter.Table do
   """
   @spec get(String.t(), String.t()) :: any()
   def get(table_name, key) do
-    table_name
-    |> process_name()
-    |> GenServer.call({:get, key})
+    case process_exists?(table_name) do
+      {true, pid} -> GenServer.call(pid, {:get, key})
+      _ -> @missing_table
+    end
   end
 
   @impl true
@@ -65,11 +78,20 @@ defmodule Winter.Table do
     response =
       case :ets.lookup(table_ref, key) do
         [{_, data}] -> data
-        [] -> ""
+        [] -> nil
       end
 
     {:reply, response, table_ref}
   end
 
   defp process_name(name), do: {:via, Registry, {Registry.TableRegistry, name}}
+
+  defp process_exists?(table_name) do
+    process_pid =
+      table_name
+      |> process_name()
+      |> GenServer.whereis()
+
+    {!!process_pid, process_pid}
+  end
 end

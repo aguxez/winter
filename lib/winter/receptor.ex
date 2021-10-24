@@ -5,6 +5,8 @@ defmodule Winter.Receptor do
 
   require Logger
 
+  alias Winter.{Table, TableManager}
+
   @doc """
   Starts receiving connections on the specified `port`.
   """
@@ -43,26 +45,41 @@ defmodule Winter.Receptor do
     String.trim(data)
   end
 
+  defp handle_request("CREATE " <> table_name) do
+    case TableManager.init_table(table_name) do
+      {:ok, _pid} -> "created"
+      {:error, {:already_started, _pid}} -> "already created"
+    end
+  end
+
   defp handle_request("PUT " <> rest) do
     [store, key, data] = String.split(rest, " ", parts: 3)
-    Winter.Table.put(store, key, data)
-    "ok\n"
+    Table.put(store, key, data)
   end
 
   defp handle_request("GET " <> rest) do
     [store, key] = String.split(rest, " ", parts: 2)
-    Winter.Table.get(store, key) <> "\n"
+
+    case Table.get(store, key) do
+      nil -> "nil"
+      data -> data
+    end
   end
 
   defp handle_request("DELETE " <> rest) do
     [store, key] = String.split(rest, " ", parts: 2)
-    Winter.Table.delete(store, key)
-    "ok\n"
+    Table.delete(store, key)
   end
 
-  defp handle_request(_), do: "unrecognized command\n"
+  defp handle_request(""), do: <<>>
+
+  defp handle_request(input) do
+    [command | _] = String.split(input, " ", parts: 2)
+
+    "unrecognized command #{command}"
+  end
 
   defp write_line(response, socket) do
-    :gen_tcp.send(socket, response)
+    :gen_tcp.send(socket, response <> "\n")
   end
 end
