@@ -13,9 +13,12 @@ defmodule Winter.Receptor do
 
   defp loop_receptor(socket) do
     {:ok, client} = :gen_tcp.accept(socket)
-    {:ok, pid} = Task.Supervisor.start_child(Winter.ReceptorSupervisor, fn ->
-      serve(client)
-    end)
+
+    {:ok, pid} =
+      Task.Supervisor.start_child(Winter.ReceptorSupervisor, fn ->
+        serve(client)
+      end)
+
     :gen_tcp.controlling_process(client, pid)
     loop_receptor(socket)
   end
