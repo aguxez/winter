@@ -1,8 +1,14 @@
 defmodule Winter.Receptor do
-  @moduledoc false
+  @moduledoc """
+  Main interface to manage TCP connections.
+  """
 
   require Logger
 
+  @doc """
+  Starts receiving connections on the specified `port`.
+  """
+  @spec accept(non_neg_integer()) :: no_return()
   def accept(port) do
     {:ok, socket} =
       :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])

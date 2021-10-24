@@ -1,5 +1,9 @@
 defmodule Winter.Table do
-  @moduledoc false
+  @moduledoc """
+  Handles communication between stores (or tables). Each process manages a different `store`.
+  They're all kept in memory, these are managed by `Winter.TableManager`, so, in case of a crash
+  then the process and the store itself will be automatically started.
+  """
 
   use GenServer, restart: :transient
 
@@ -8,6 +12,9 @@ defmodule Winter.Table do
     GenServer.start_link(__MODULE__, table_name, name: process_name(table_name))
   end
 
+  @doc """
+  Puts `data` under `key` on `table_name`.
+  """
   @spec put(String.t(), String.t(), any()) :: :ok
   def put(table_name, key, data) do
     table_name
@@ -15,6 +22,9 @@ defmodule Winter.Table do
     |> GenServer.cast({:put, key, data})
   end
 
+  @doc """
+  Deletes `key` on `table_name`.
+  """
   @spec delete(String.t(), String.t()) :: :ok
   def delete(table_name, key) do
     table_name
@@ -22,6 +32,9 @@ defmodule Winter.Table do
     |> GenServer.cast({:delete, key})
   end
 
+  @doc """
+  Gets `key` on `table_name`.
+  """
   @spec get(String.t(), String.t()) :: any()
   def get(table_name, key) do
     table_name
