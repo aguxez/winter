@@ -38,17 +38,19 @@ defmodule Winter.Receptor do
   end
 
   defp handle_request("PUT " <> rest) do
-    [key, data] = String.split(rest, " ", parts: 2)
-    Winter.Table.put("table", key, data)
+    [store, key, data] = String.split(rest, " ", parts: 3)
+    Winter.Table.put(store, key, data)
     "ok\n"
   end
 
-  defp handle_request("GET " <> key) do
-    Winter.Table.get("table", key) <> "\n"
+  defp handle_request("GET " <> rest) do
+    [store, key] = String.split(rest, " ", parts: 2)
+    Winter.Table.get(store, key) <> "\n"
   end
 
-  defp handle_request("DELETE " <> key) do
-    Winter.Table.delete("table", key)
+  defp handle_request("DELETE " <> rest) do
+    [store, key] = String.split(rest, " ", parts: 2)
+    Winter.Table.delete(store, key)
     "ok\n"
   end
 
