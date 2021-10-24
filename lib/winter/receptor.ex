@@ -22,6 +22,8 @@ defmodule Winter.Receptor do
   defp loop_receptor(socket) do
     {:ok, client} = :gen_tcp.accept(socket)
 
+    Logger.info("Received a connection on socket #{inspect(socket)}")
+
     {:ok, pid} =
       Task.Supervisor.start_child(Winter.ReceptorSupervisor, fn ->
         serve(client)
@@ -41,8 +43,10 @@ defmodule Winter.Receptor do
   end
 
   defp read_line(socket) do
-    {:ok, data} = :gen_tcp.recv(socket, 0)
-    String.trim(data)
+    case :gen_tcp.recv(socket, 0) do
+      {:ok, data} -> String.trim(data)
+      {:error, _} -> ""
+    end
   end
 
   defp handle_request("CREATE " <> table_name) do

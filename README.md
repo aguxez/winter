@@ -11,12 +11,19 @@ Winter is an in memory key-value store, the term table based comes from the idea
 
 ## Building
 
-Build the image from the Dockerfile and specify `RECEPTOR_PORT` AND `ENV` as part of the build configuration.
+Build the image from the Dockerfile and specify `BUILD_ENV` as part of the build configuration.
+
+Then specify `RECEPTOR_PORT` when running it.
 
 ### Example
 
 ```bash
-> docker build --build-arg RECEPTOR_PORT=4040 --build-arg BUILD_ENV=prod -t name:tag .
+> docker build --build-arg BUILD_ENV=prod -t name:tag .
+
+> docker run -e RECEPTOR_PORT=1010 -it name:tag
+
+## Alternatively, you can pull it from the hub
+> docker pull aguxez/winter:latest
 ```
 
 ## Connecting

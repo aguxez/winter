@@ -1,9 +1,8 @@
 FROM elixir:1.12.3-alpine as builder
 
 ARG BUILD_ENV=prod
-ARG RECEPTOR_PORT
 
-ENV RECEPTOR_PORT=${RECEPTOR_PORT} MIX_ENV=${BUILD_ENV}
+ENV MIX_ENV=${BUILD_ENV}
 
 WORKDIR /opt
 
@@ -21,12 +20,6 @@ FROM erlang:24.0.5-alpine
 
 WORKDIR /opt/release
 
-ARG RECEPTOR_PORT
-
-ENV RECEPTOR_PORT=${RECEPTOR_PORT}
-
 COPY --from=builder /opt/release .
-
-EXPOSE ${RECEPTOR_PORT}
 
 CMD ["/opt/release/bin/server", "start"]
