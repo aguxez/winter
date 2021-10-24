@@ -7,7 +7,7 @@ Build the image from the Dockerfile and specify `RECEPTOR_PORT` AND `ENV` as par
 ### Example
 
 ```bash
-> docker build --build-arg RECEPTOR_PORT=4040 --build-arg ENV=prod -t name:tag .
+> docker build --build-arg RECEPTOR_PORT=4040 --build-arg BUILD_ENV=prod -t name:tag .
 ```
 
 ### Connecting
