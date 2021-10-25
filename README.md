@@ -1,9 +1,10 @@
-# Winter
+<h1 align="center">Winter</h1>
 
-Table based KV server
+<p align="center"><img src="https://user-images.githubusercontent.com/17911679/138747087-301b4eeb-4e26-45c5-8c70-5eec97444d5c.png" alt="logo" width="200"/></p>
 
-![](https://img.shields.io/badge/Made%20With-Elixir-blueviolet)
-![](https://img.shields.io/badge/License-MIT-lightgray)
+<p align="center">Table based KV server</p>
+
+<p align="center"><img src="https://img.shields.io/badge/Made%20With-Elixir-blueviolet"/> <img src="https://img.shields.io/badge/License-MIT-lightgray"/></p>
 
 ## Introduction
 
