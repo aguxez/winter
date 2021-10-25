@@ -26,7 +26,7 @@ defmodule Winter.Command do
     end
   end
 
-  defp do_handle("PUT " <> rest) do
+  defp do_handle("PUTNEW " <> rest) do
     [store, key, data] = String.split(rest, " ", parts: 3)
     Table.put(store, key, data)
   end
@@ -53,12 +53,12 @@ defmodule Winter.Command do
     "unrecognized command #{command}"
   end
 
-  # A Pipelined command should come as follows (GET a_table key\r\nPUT table key data\r\nPING\r\n)
+  # A Pipelined command should come as follows (GET a_table key\r\nPUTNEW table key data\r\nPING\r\n)
   # so if the split returns a single item it means we're processing a single command
   defp check_pipelined(command) do
     case String.split(command, "\\r\\n", trim: true) do
       [command] -> {false, command}
-      commands -> {true, Enum.reject(commands, & &1 == @eol)}
+      commands -> {true, commands}
     end
   end
 end

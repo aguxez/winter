@@ -57,7 +57,7 @@ Gets `key` on `table`
 > GET table key
 nil
 
-> PUT table key data
+> PUTNEW table key data
 ok
 
 > GET table key
@@ -65,16 +65,16 @@ data
 ```
 
 
-### PUT `table` `key` `data`
+### PUTNEW `table` `key` `data`
 Puts `data` under `key` on `table`. This command is immutable.
 
 **Example**
 
 ```bash
-> PUT table key more data
+> PUTNEW table key more data
 ok
 
-> PUT table key another chunk of data
+> PUTNEW table key another chunk of data
 ok
 
 > GET table key
@@ -88,7 +88,7 @@ Deletes `key` on `table`
 **Example**
 
 ```bash
-> PUT table key chunk
+> PUTNEW table key chunk
 ok
 
 > DELETE table key

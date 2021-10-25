@@ -55,8 +55,5 @@ defmodule Winter.Receptor do
     end)
   end
 
-  defp write_line(response, socket) do
-  IO.inspect response
-    :gen_tcp.send(socket, response <> "\n")
-  end
+  defp write_line(response, socket), do: :gen_tcp.send(socket, response <> "\n")
 end
