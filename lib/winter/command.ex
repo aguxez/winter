@@ -56,7 +56,7 @@ defmodule Winter.Command do
   # A Pipelined command should come as follows (GET a_table key\r\nPUTNEW table key data\r\nPING\r\n)
   # so if the split returns a single item it means we're processing a single command
   defp check_pipelined(command) do
-    case String.split(command, "\\r\\n", trim: true) do
+    case String.split(command, :binary.compile_pattern(["\\r\\n", "\r\n"]), trim: true) do
       [command] -> {false, command}
       commands -> {true, commands}
     end
