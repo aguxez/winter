@@ -20,7 +20,10 @@ defmodule Winter.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:horde, "== 0.8.5"},
+      {:libcluster, "== 3.3.0"}
+    ]
   end
 
   defp releases do

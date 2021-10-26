@@ -84,7 +84,7 @@ defmodule Winter.Table do
     {:reply, response, table_ref}
   end
 
-  defp process_name(name), do: {:via, Registry, {Registry.TableRegistry, name}}
+  defp process_name(name), do: {:via, Horde.Registry, {Horde.Registry.TableRegistry, name}}
 
   defp process_exists?(table_name) do
     process_pid =

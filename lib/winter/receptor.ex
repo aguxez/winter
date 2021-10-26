@@ -12,11 +12,15 @@ defmodule Winter.Receptor do
   """
   @spec accept(non_neg_integer()) :: no_return()
   def accept(port) do
-    {:ok, socket} =
-      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+    case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
+      {:ok, socket} ->
+        Logger.info("Accepting connections on port #{port}")
 
-    Logger.info("Accepting connections on port #{port}")
-    loop_receptor(socket)
+        loop_receptor(socket)
+
+      {:error, _} ->
+        self()
+    end
   end
 
   defp loop_receptor(socket) do
@@ -25,7 +29,7 @@ defmodule Winter.Receptor do
     Logger.info("Received a connection on socket #{inspect(socket)}")
 
     {:ok, pid} =
-      Task.Supervisor.start_child(Winter.ReceptorSupervisor, fn ->
+      Task.Supervisor.start_child(Winter.ReceptorTaskSupervisor, fn ->
         serve(client)
       end)
 

@@ -22,4 +22,4 @@ WORKDIR /opt/release
 
 COPY --from=builder /opt/release .
 
-CMD ["/opt/release/bin/server", "start"]
+ENTRYPOINT ["/opt/release/bin/server", "start"]
