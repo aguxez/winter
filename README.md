@@ -2,13 +2,13 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/17911679/138747087-301b4eeb-4e26-45c5-8c70-5eec97444d5c.png" alt="logo" width="200"/></p>
 
-<p align="center">Table based KV server</p>
+<p align="center">Distributed table based KV server</p>
 
 <p align="center"><img src="https://img.shields.io/badge/Made%20With-Elixir-blueviolet"/> <img src="https://img.shields.io/badge/License-MIT-lightgray"/></p>
 
 ## Introduction
 
-Winter is an in memory key-value store, the term table based comes from the idea that each group of data lives in isolation. If you want to PUT/GET/DELETE/etc... you must specify the table on which these commands are going to be actioned. Each table runs in a supervision tree which makes the server more responsive and reliable against application and network level errors.
+Winter is a distributed in memory key-value store, the term table based comes from the idea that each group of data lives in isolation. If you want to PUT/GET/DELETE/etc... you must specify the table on which these commands are going to be actioned. Each table runs in a supervision tree which makes the server more responsive and reliable against application and network level errors.
 
 ## Building
 
@@ -33,68 +33,90 @@ Connections happen through TCP. Open a connection to the specified `RECEPTOR_POR
 
 ## Supported Commands
 
-All commands in this section, except for `CREATE` will also return a `missing table` message if the table hasn't been created
+<details>
+  <summary>Click to show</summary>
 
-### CREATE `table`
-Creates a new `table`
+  All commands in this section, except for `CREATE` will also return a `missing table` message if the table hasn't been created
 
-**Example**
+  ### CREATE `table`
+  Creates a new `table`
 
-```bash
-> CREATE table
-created
+  **Example**
 
-> CREATE table
-already created
-```
+  ```bash
+  > CREATE table
+  created
 
-### GET `table` `key`
+  > CREATE table
+  already created
+  ```
 
-Gets `key` on `table`
+  ### GET `table` `key`
 
-**Example**
+  Gets `key` on `table`
 
-```bash
-> GET table key
-nil
+  **Example**
 
-> PUTNEW table key data
-ok
+  ```bash
+  > GET table key
+  nil
 
-> GET table key
-data
-```
+  > PUTNEW table key data
+  ok
+
+  > GET table key
+  data
+  ```
 
 
-### PUTNEW `table` `key` `data`
-Puts `data` under `key` on `table`. This command is immutable.
+  ### PUTNEW `table` `key` `data`
+  Puts `data` under `key` on `table`. This command is immutable.
 
-**Example**
+  **Example**
 
-```bash
-> PUTNEW table key more data
-ok
+  ```bash
+  > PUTNEW table key more data
+  ok
 
-> PUTNEW table key another chunk of data
-ok
+  > PUTNEW table key another chunk of data
+  ok
 
-> GET table key
-more data
-```
+  > GET table key
+  more data
+  ```
 
-### DELETE `table` `key`
+  ### DELETE `table` `key`
 
-Deletes `key` on `table`
+  Deletes `key` on `table`
 
-**Example**
+  **Example**
 
-```bash
-> PUTNEW table key chunk
-ok
+  ```bash
+  > PUTNEW table key chunk
+  ok
 
-> DELETE table key
-ok
+  > DELETE table key
+  ok
 
-> GET table key
-nil
-```
+  > GET table key
+  nil
+  ```
+</details>
+
+## Distributed workload
+<details>
+<summary>Click to show</summary>
+
+  Winter can work as a distributed deployment if you wish to do so, based on a toggle (`IS_DISTRIBUTED=true`) at startup, Winter will set the necessary configuration. At this moment Winter only works with Kubernetes through DNS configuration. You have to set two env vars for this to work properly if `IS_DISTRIBUTED=true`
+
+  * `DNS_SERVICE_NAME`
+  * `DNS_APPLICATION_NAME`
+
+  In the `k8s` folder you can see an example configuration (which can be easily deployed to `minikube`) and in that example `DNS_SERVICE_NAME=winter-nodes` and `DNS_APPLICATION_NAME=winter`.
+
+  Nodes discovery/removal works automatically by default.
+</details>
+
+### TODO
+
+- [ ] More friendly configuration so we can abstract the need to know Elixir for distributed workload.
