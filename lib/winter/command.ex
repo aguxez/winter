@@ -28,7 +28,8 @@ defmodule Winter.Command do
 
   defp do_handle("PUTNEW " <> rest) do
     [store, key, data] = String.split(rest, " ", parts: 3)
-    Table.put(store, key, data)
+    {data, ttl} = extract_ttl(data)
+    Table.put_new(store, key, data, ttl: ttl)
   end
 
   defp do_handle("GET " <> rest) do
@@ -64,6 +65,14 @@ defmodule Winter.Command do
       [command] -> {false, command}
       [] -> {false, ""}
       commands -> {true, commands}
+    end
+  end
+
+  # In case the command has a TTL we're going to take it out and leave the data to put behind
+  defp extract_ttl(command_input) do
+    case String.split(command_input, " EXPIRE ", parts: 2) do
+      [data] -> {data, nil}
+      [data, ttl] -> {data, String.to_integer(ttl)}
     end
   end
 end
