@@ -22,7 +22,8 @@ defmodule Winter.MixProject do
   defp deps do
     [
       {:horde, "== 0.8.5"},
-      {:libcluster, "== 3.3.0"}
+      {:libcluster, "== 3.3.0"},
+      {:stream_data, "== 0.5.0", only: :test}
     ]
   end
 

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Elixir
+        uses: actions/setup-elixir@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.12'
+      - name: Install and compile
+        run: |
+          mix deps.get
+          mix compile
+      - name: Checks formatter
+        run: mix format --check-formatted
+      - name: Run tests
+        run: mix test
+        env:
+          CI: true
