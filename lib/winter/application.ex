@@ -37,7 +37,7 @@ defmodule Winter.Application do
     |> build_cluster_config()
   end
 
-  defp build_cluster_config(false), do: []
+  defp build_cluster_config(status) when status in [false, nil], do: []
 
   defp build_cluster_config(true) do
     topologies = Application.get_env(:libcluster, :topologies)

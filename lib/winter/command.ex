@@ -48,7 +48,11 @@ defmodule Winter.Command do
   defp do_handle(""), do: <<>>
 
   defp do_handle(input) do
-    [command | _] = String.split(input, " ", parts: 2)
+    [command | _] =
+      input
+      |> String.trim_leading()
+      |> String.trim_trailing()
+      |> String.split(" ", parts: 2)
 
     "unrecognized command #{command}"
   end
@@ -58,6 +62,7 @@ defmodule Winter.Command do
   defp check_pipelined(command) do
     case String.split(command, :binary.compile_pattern(["\\r\\n", "\r\n"]), trim: true) do
       [command] -> {false, command}
+      [] -> {false, ""}
       commands -> {true, commands}
     end
   end

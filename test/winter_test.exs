@@ -1,8 +1,5 @@
 defmodule WinterTest do
-  use ExUnit.Case
-  doctest Winter
+  @moduledoc false
 
-  test "greets the world" do
-    assert Winter.hello() == :world
-  end
+  use ExUnit.Case
 end
