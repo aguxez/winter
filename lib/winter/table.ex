@@ -17,11 +17,11 @@ defmodule Winter.Table do
   @doc """
   Puts `data` under `key` on `table_name`.
   """
-  @spec put(String.t(), String.t(), any()) :: String.t()
-  def put(table_name, key, data) do
+  @spec put_new(String.t(), String.t(), any(), Keyword.t()) :: String.t()
+  def put_new(table_name, key, data, opts \\ []) do
     case process_exists?(table_name) do
       {true, pid} ->
-        GenServer.cast(pid, {:put, key, data})
+        GenServer.cast(pid, {:put, key, data, opts})
         "ok"
 
       _ ->
@@ -62,8 +62,13 @@ defmodule Winter.Table do
   end
 
   @impl true
-  def handle_cast({:put, key, data}, table_ref) do
+  def handle_cast({:put, key, data, opts}, table_ref) do
+    ttl = Keyword.get(opts, :ttl)
+
     :ets.insert_new(table_ref, {key, data})
+
+    if ttl, do: Process.send_after(self(), {:ttl_delete, key}, ttl)
+
     {:noreply, table_ref}
   end
 
@@ -82,6 +87,12 @@ defmodule Winter.Table do
       end
 
     {:reply, response, table_ref}
+  end
+
+  @impl true
+  def handle_info({:ttl_delete, key}, table_ref) do
+    :ets.delete(table_ref, key)
+    {:noreply, table_ref}
   end
 
   defp process_name(name), do: {:via, Horde.Registry, {Horde.Registry.TableRegistry, name}}

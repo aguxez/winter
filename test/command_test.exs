@@ -6,6 +6,8 @@ defmodule Winter.CommandTest do
 
   alias Winter.Command
 
+  setup :start_table_manager
+
   describe "handle" do
     # the idea of this test is not to handle commands exactly but other
     # clauses
@@ -51,6 +53,24 @@ defmodule Winter.CommandTest do
     end
   end
 
+  describe "handle/PUTNEW TTL" do
+    setup [:set_table_name_and_keys, :create_table]
+
+    test "should delete the value if TTL is provided", %{
+      table_name: table_name,
+      key: key,
+      value: value,
+      table_pid: pid
+    } do
+      :erlang.trace(pid, true, [:receive])
+
+      assert Command.handle("PUTNEW #{table_name} #{key} #{value} EXPIRE 1")
+      assert_receive {:trace, ^pid, :receive, {:ttl_delete, ^key}}
+
+      refute Winter.Table.get(table_name, key)
+    end
+  end
+
   describe "handle/GET" do
     setup [:set_table_name_and_keys, :create_table, :put_value]
 
@@ -87,12 +107,17 @@ defmodule Winter.CommandTest do
   end
 
   defp create_table(ctx) do
-    Command.handle("CREATE #{ctx.table_name}")
-    :ok
+    {:ok, pid} = Winter.TableManager.init_table(ctx.table_name)
+    {:ok, table_pid: pid}
   end
 
   defp put_value(ctx) do
     Command.handle("PUTNEW #{ctx.table_name} #{ctx.key} #{ctx.value}")
+    :ok
+  end
+
+  defp start_table_manager(_) do
+    start_supervised!(Winter.TableManager)
     :ok
   end
 end

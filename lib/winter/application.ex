@@ -7,18 +7,25 @@ defmodule Winter.Application do
 
   @impl true
   def start(_type, _args) do
-    cluster_config = check_distributed_flag()
+    cluster_children = check_distributed_flag()
 
-    set_children = [
-      {Task.Supervisor, name: Winter.ReceptorTaskSupervisor},
-      {Horde.Registry, name: Horde.Registry.TableRegistry, keys: :unique, members: :auto},
-      Supervisor.child_spec({Task, fn -> Winter.Receptor.accept(receptor_port()) end},
-        restart: :transient
-      ),
-      Winter.TableManager
+    always_start = [
+      {Horde.Registry, name: Horde.Registry.TableRegistry, keys: :unique, members: :auto}
     ]
 
-    children = cluster_config ++ set_children
+    check_if_start = [
+      Winter.TableManager,
+      {Task.Supervisor, name: Winter.ReceptorTaskSupervisor},
+      Supervisor.child_spec({Task, fn -> Winter.Receptor.accept(receptor_port()) end},
+        restart: :transient
+      )
+    ]
+
+    children =
+      case Application.get_env(:winter, :env) do
+        :test -> always_start
+        _ -> always_start ++ cluster_children ++ check_if_start
+      end
 
     opts = [strategy: :one_for_one, name: Winter.Supervisor]
     Supervisor.start_link(children, opts)
