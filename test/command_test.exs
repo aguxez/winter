@@ -56,7 +56,12 @@ defmodule Winter.CommandTest do
   describe "handle/PUTNEW TTL" do
     setup [:set_table_name_and_keys, :create_table]
 
-    test "should delete the value if TTL is provided", %{table_name: table_name, key: key, value: value, table_pid: pid} do
+    test "should delete the value if TTL is provided", %{
+      table_name: table_name,
+      key: key,
+      value: value,
+      table_pid: pid
+    } do
       :erlang.trace(pid, true, [:receive])
 
       assert Command.handle("PUTNEW #{table_name} #{key} #{value} EXPIRE 1")
