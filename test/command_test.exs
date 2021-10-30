@@ -6,8 +6,6 @@ defmodule Winter.CommandTest do
 
   alias Winter.Command
 
-  setup :start_table_manager
-
   describe "handle" do
     # the idea of this test is not to handle commands exactly but other
     # clauses
@@ -67,7 +65,7 @@ defmodule Winter.CommandTest do
       assert Command.handle("PUTNEW #{table_name} #{key} #{value} EXPIRE 1")
       assert_receive {:trace, ^pid, :receive, {:ttl_delete, ^key}}
 
-      refute Winter.Table.get(table_name, key)
+      assert Winter.Table.get(table_name, key) == {:error, nil}
     end
   end
 
@@ -113,11 +111,6 @@ defmodule Winter.CommandTest do
 
   defp put_value(ctx) do
     Command.handle("PUTNEW #{ctx.table_name} #{ctx.key} #{ctx.value}")
-    :ok
-  end
-
-  defp start_table_manager(_) do
-    start_supervised!(Winter.TableManager)
     :ok
   end
 end

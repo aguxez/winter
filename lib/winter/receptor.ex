@@ -7,6 +7,8 @@ defmodule Winter.Receptor do
 
   alias Winter.Command
 
+  @eol "\r\n"
+
   @doc """
   Starts receiving connections on the specified `port`.
   """
@@ -40,24 +42,30 @@ defmodule Winter.Receptor do
   defp serve(socket) do
     socket
     |> read_line()
-    |> Command.handle()
+    |> Command.handle(socket)
     |> write_line(socket)
 
     serve(socket)
   end
 
-  defp read_line(socket) do
-    case :gen_tcp.recv(socket, 0) do
-      {:ok, data} -> data
-      {:error, _} -> ""
+  defp read_line(socket, collected_data \\ "") do
+    case :gen_tcp.recv(socket, 0, 100) do
+      {:ok, data} ->
+        read_line(socket, collected_data <> data)
+
+      {:error, :timeout} ->
+        collected_data
+
+      {:error, _} ->
+        ""
     end
   end
 
   defp write_line([_ | _] = responses, socket) do
     Enum.each(responses, fn response ->
-      :gen_tcp.send(socket, response <> "\n")
+      :gen_tcp.send(socket, response <> @eol)
     end)
   end
 
-  defp write_line(response, socket), do: :gen_tcp.send(socket, response <> "\n")
+  defp write_line(response, socket), do: :gen_tcp.send(socket, response <> @eol)
 end

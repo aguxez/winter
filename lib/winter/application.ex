@@ -10,12 +10,12 @@ defmodule Winter.Application do
     cluster_children = check_distributed_flag()
 
     always_start = [
-      {Horde.Registry, name: Horde.Registry.TableRegistry, keys: :unique, members: :auto}
+      {Horde.Registry, name: Horde.Registry.TableRegistry, keys: :unique, members: :auto},
+      {Task.Supervisor, name: Winter.ReceptorTaskSupervisor},
+      Winter.TableManager
     ]
 
     check_if_start = [
-      Winter.TableManager,
-      {Task.Supervisor, name: Winter.ReceptorTaskSupervisor},
       Supervisor.child_spec({Task, fn -> Winter.Receptor.accept(receptor_port()) end},
         restart: :transient
       )
