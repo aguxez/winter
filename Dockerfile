@@ -11,7 +11,7 @@ RUN mix local.rebar --force && mix local.hex --force
 COPY . .
 
 RUN mix do deps.get, compile
-RUN mix release --overwrite
+RUN mix release
 RUN mv _build/${BUILD_ENV}/rel/winter /opt/release
 RUN mv /opt/release/bin/winter /opt/release/bin/server
 
